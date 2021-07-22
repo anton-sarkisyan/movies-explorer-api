@@ -13,6 +13,7 @@ const handleErrors = require('./middlewares/errors');
 const { isValidateSignup, isValidateSignin } = require('./middlewares/validation');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
+const { NOT_FOUND_PAGE } = require('./utils/const');
 
 const { MONGO_ADDRESS } = require('./utils/const');
 
@@ -43,7 +44,7 @@ app.use(auth);
 app.use('/', require('./routes/index'));
 
 app.get('*', (req, res, next) => {
-  next(new NotFoundError('Запрашиваемый ресурс не найден'));
+  next(new NotFoundError(NOT_FOUND_PAGE));
 });
 
 app.use(errorLogger);
