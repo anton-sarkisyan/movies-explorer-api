@@ -5,6 +5,13 @@ const ValidationErr = require('../errors/validation-err');
 const NotFoundErr = require('../errors/not-found-err');
 const NoRightsErr = require('../errors/no-rights-err');
 const ConflictErr = require('../errors/conflict-err');
+const {
+  NOT_FOUND_ID_USER_ERR,
+  VALIDATION_UPDATE_USER_ERR,
+  VALIDATION_CREATE_USER_ERR,
+  CREATE_USER_CONFLICT_ERR,
+  INVALID_LOGIN_ERR,
+} = require('../utils/const');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -21,13 +28,13 @@ const updateProfile = (req, res, next) => {
     new: true,
     runValidators: true,
   })
-    .orFail(() => new NotFoundErr('Пользователь по указанному _id не найден'))
+    .orFail(() => new NotFoundErr(NOT_FOUND_ID_USER_ERR))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'Пользователь по указанному _id не найден') {
+      if (err.message === NOT_FOUND_ID_USER_ERR) {
         next(err);
       } else if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(new ValidationErr('Переданы некорректные данные при обновлении пользователя'));
+        next(new ValidationErr(VALIDATION_UPDATE_USER_ERR));
       } else {
         next(err);
       }
@@ -51,9 +58,9 @@ const creatUser = (req, res, next) => {
         }))
         .catch((err) => {
           if (err.name === 'MongoError' && err.code === 11000) {
-            next(new ConflictErr('Пользователь уже существует'));
+            next(new ConflictErr(CREATE_USER_CONFLICT_ERR));
           } else if (err.name === 'CastError' || err.name === 'ValidationError') {
-            next(new ValidationErr('Переданы некорректные данные при создании пользователя'));
+            next(new ValidationErr(VALIDATION_CREATE_USER_ERR));
           } else {
             next(err);
           }
@@ -67,13 +74,13 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new NoRightsErr('Неправильные почта или пароль');
+        throw new NoRightsErr(INVALID_LOGIN_ERR);
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new NoRightsErr('Неправильные почта или пароль');
+            throw new NoRightsErr(INVALID_LOGIN_ERR);
           }
 
           const token = jwt.sign({ _id: user._id },
@@ -92,7 +99,7 @@ const login = (req, res, next) => {
         });
     })
     .catch((err) => {
-      if (err.message === 'Неправильные почта или пароль') {
+      if (err.message === INVALID_LOGIN_ERR) {
         next(err);
       } else {
         next(err);

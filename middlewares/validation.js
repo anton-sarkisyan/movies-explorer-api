@@ -1,4 +1,13 @@
 const { Joi } = require('celebrate');
+const validator = require('validator');
+
+const handleUrl = (value) => {
+  const result = validator.isURL(value);
+  if (result) {
+    return value;
+  }
+  throw new Error('URL validation err');
+};
 
 const isValidateSignup = {
   body: Joi.object().keys({
@@ -29,10 +38,10 @@ const isValidateCreateMovie = {
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().pattern(/^https?:\/\/[www]?[\S]+$/).required(),
-    trailer: Joi.string().pattern(/^https?:\/\/[www]?[\S]+$/).required(),
+    image: Joi.string().required().custom(handleUrl),
+    trailer: Joi.string().required().custom(handleUrl),
     thumbnail: Joi.string().required(),
-    movieId: Joi.string().length(24).hex(),
+    movieId: Joi.string().min(1).required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),

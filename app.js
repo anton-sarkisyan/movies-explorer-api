@@ -14,10 +14,15 @@ const { isValidateSignup, isValidateSignin } = require('./middlewares/validation
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 
+const { MONGO_ADDRESS } = require('./utils/const');
+
 const { PORT = 3000 } = process.env;
 const app = express();
+const { NODE_ENV, DB_ADDRESS } = process.env;
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(NODE_ENV === 'production'
+  ? DB_ADDRESS
+  : MONGO_ADDRESS, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
