@@ -2,6 +2,7 @@ const cors = require('cors');
 
 const whitelist = [
   'http://localhost:3001',
+  'http://localhost:3000',
   'http://movie.project.nomoredomains.club',
   'https://movie.project.nomoredomains.club',
 ];
